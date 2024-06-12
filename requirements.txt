@@ -6,3 +6,4 @@ Pillow==9.2.0
 spacy==3.3.1
 transformers==4.21.1
 requests==2.28.1
+tokenizers
