@@ -1,5 +1,7 @@
 # 🤖 DocBot: Smart Document ChatBot
 
+[streamlit-app-2024-06-11-16-06-53.webm](https://github.com/Adityak8340/DocBot/assets/140245948/76d76b92-ad7b-4f85-86df-ecc355a6c6ae)
+
 DocBot is an intelligent document processing application with a chatbot interface. It can process various types of documents, including PDFs and images, extract essential information, and enable user interaction through a chat interface.
 
 ## ⭐️ Features
