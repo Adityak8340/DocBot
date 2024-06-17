@@ -22,7 +22,7 @@ nlp = spacy.load("en_core_web_sm")
 client = Groq(api_key=api_key)
 
 # Streamlit app
-st.title("DocBot: Smart Document ChatBot")
+st.title("Payment Voucher to JSON Converter")
 
 uploaded_file = st.file_uploader("Upload your file", type=["pdf", "png", "jpg", "jpeg"])
 
@@ -68,16 +68,26 @@ def extract_json_from_response(response):
 
 def generate_response(user_prompt, text_content):
     try:
-        # Define the system prompt with strict attribute order
+        # Define the system prompt with strict attribute order and an example
         system_prompt = (
-            "Identify these attributes: account_credited, account_debited, amount, phone_no, email, bill_no, address, date, and note from the document. Your top priority is only to  provide a JSON formatted text with these attributes in this exact sequence. Make sure that json format should be in correct sequence."
+            "Identify these attributes: account_credited, account_debited, amount, phone_no, email, bill_no, address, date, and note from the document. "
+            "Your top priority is only to provide a JSON formatted text with these attributes in this exact sequence. "
+            "Make sure that the JSON format is correct. Here is an example response:\n\n"
+            "{\n"
+            "\"account_credited\": \"Anjul Industries\",\n"
+            "\"account_debited\": \"HDFC BANK\",\n"
+            "\"amount\": 1432086,\n"
+            "\"phone_no\": \"+91-9355992817\",\n"
+            "\"email\": \"accounts@wasserfluss.cam\",\n"
+            "\"bill_no\": \"WFIBP/23-24/007\",\n"
+            "\"address\": \"Plat Na-492, Sector - 68, IkIT, Faridabacl -121004\",\n"
+            "\"date\": \"4-Apr-23\",\n"
+            "\"note\": \"INR Fourteen Lakh Thirty Two Thousand Eighty Six Only\"\n"
+            "}\n"
         )
         
         # Concatenate the system and user prompts
         prompt = f"{system_prompt}\n\nDocument Text: {text_content}\n\nUser Query: {user_prompt}\n\nAnswer:"
-        
-        # Log the prompt being sent to the API
-    
         
         # Call the Groq model with the combined prompt
         chat_completion = client.chat.completions.create(
