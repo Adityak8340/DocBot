@@ -74,8 +74,8 @@ def generate_response(user_prompt, text_content):
             "Your top priority is only to provide a JSON formatted text with these attributes in this exact sequence. "
             "Make sure that the JSON format is correct. Here is an example response:\n\n"
             "{\n"
-            "\"account_credited\": \"Anjul Industries\",\n"
-            "\"account_debited\": \"HDFC BANK\",\n"
+            "\"account_credited\": \"HDFC BANK\",\n"
+            "\"account_debited\": \"Anjul Industries\",\n"
             "\"amount\": 1432086,\n"
             "\"phone_no\": \"+91-9355992817\",\n"
             "\"email\": \"accounts@wasserfluss.cam\",\n"
@@ -119,6 +119,35 @@ def generate_response(user_prompt, text_content):
         st.error(f"An error occurred: {e}")
         return {}
 
+def generate_query(json_data):
+    query_template = (
+        "{debited} paid INR {amount} to {credited} on {date}. "
+        "The bill number is {bill_no} and the amount in words is {amount_in_words}. "
+        "The contact details are {phone} and email is {email}. "
+        "The address is {address}."
+    )
+    
+    # Safely extract the amount and format it if it's an integer
+    amount = json_data.get("amount", 0)
+    if isinstance(amount, int):
+        amount = f"{amount:,}"
+    else:
+        amount = str(amount)
+    
+    query = query_template.format(
+        debited=json_data.get("account_debited", "Unknown"),
+        amount=amount,
+        credited=json_data.get("account_credited", "Unknown"),
+        date=json_data.get("date", "Unknown"),
+        bill_no=json_data.get("bill_no", "Unknown"),
+        amount_in_words=json_data.get("note", "Unknown"),
+        phone=json_data.get("phone_no", "Unknown"),
+        email=json_data.get("email", "Unknown"),
+        address=json_data.get("address", "Unknown")
+    )
+    return query
+
+
 progress_bar = st.empty()  # Create an empty placeholder for the progress bar
 
 if uploaded_file:
@@ -128,9 +157,10 @@ if uploaded_file:
 
     file_extension = os.path.splitext(uploaded_file.name)[1].lower()
 
+    results = []  # Store both JSON and query
+
     if file_extension == ".pdf":
         st.write("Processing PDF...")
-        json_results = []
         
         with open(file_path, "rb") as f:
             reader = PdfReader(f)
@@ -150,18 +180,20 @@ if uploaded_file:
                 
                 # Generate JSON response for each page
                 json_response = generate_response("Extract attributes from the document.", text_content)
-                json_results.append(json_response)
+                
+                if json_response:
+                    query = generate_query(json_response)
+                    results.append({
+                        "query": query,
+                        "output": json_response
+                    })
                 
                 # Update progress bar
                 progress_bar.progress((i + 1) / total_pages)
         
         st.success("PDF processed successfully.")
-        st.json(json_results)  # Display the JSON results
+        st.json(results)  # Display the JSON and queries
 
-        # Add download button for the JSON results
-        json_str = json.dumps(json_results, indent=4)
-        st.download_button(label="Download JSON", data=json_str, file_name="document_data.json", mime="application/json")
-        
     else:
         st.write("Processing Image...")
         text_content = extract_text_from_image(file_path)
@@ -171,11 +203,23 @@ if uploaded_file:
             st.error("No text found in the uploaded image.")
         else:
             json_response = generate_response("Extract attributes from the document.", text_content)
-            st.json([json_response])  # Display the JSON result
+            if json_response:
+                query = generate_query(json_response)
+                results.append({
+                    "query": query,
+                    "output": json_response
+                })
+            st.json(results)  # Display the JSON and query
 
-            # Add download button for the JSON result
-            json_str = json.dumps([json_response], indent=4)
-            st.download_button(label="Download JSON", data=json_str, file_name="document_data.json", mime="application/json")
+    # Add download button for the dataset
+    if results:
+        dataset_str = json.dumps(results, indent=4)
+        st.download_button(
+            label="Download Dataset",
+            data=dataset_str,
+            file_name="document_data.json",
+            mime="application/json"
+        )
 
 # Clean up temp images
 def cleanup_temp_images(output_folder="temp_images"):
