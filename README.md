@@ -19,7 +19,7 @@ DocBot is an intelligent document processing application with a chatbot interfac
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/docbot.git
+    git clone https://github.com/Adityak8340/docbot.git
     ```
 
 2. Install the required Python packages:
