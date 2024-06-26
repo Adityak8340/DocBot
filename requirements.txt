@@ -1,4 +1,4 @@
-streamlit
+streamlit==1.36.0
 PyPDF2
 pdf2image
 pillow
