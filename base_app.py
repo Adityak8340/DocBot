@@ -3,9 +3,11 @@ from PyPDF2 import PdfReader
 from pdf2image import convert_from_path
 from PIL import Image
 import pytesseract
-import fitz  # PyMuPDF
-import spacy
 import os
+import numpy as np
+import faiss  # Vector database
+from sentence_transformers import SentenceTransformer
+import spacy
 from groq import Groq
 import configparser
 
@@ -20,10 +22,17 @@ nlp = spacy.load("en_core_web_sm")
 # Set up the Groq client
 client = Groq(api_key=api_key)
 
+# Initialize the Sentence Transformer model for embeddings
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')  # You can choose a different model if needed
+
 # Streamlit app
 st.title("DocBot: Smart Document ChatBot")
 
 uploaded_file = st.file_uploader("Upload your file", type=["pdf", "png", "jpg", "jpeg"])
+
+# Placeholder for text content and vector database
+text_content = None
+vector_db = None
 
 def convert_pdf_to_images(pdf_path, output_folder="temp_images"):
     if not os.path.exists(output_folder):
@@ -47,15 +56,22 @@ def extract_text_from_pdf(pdf_path):
 def extract_text_from_image(image_path):
     return pytesseract.image_to_string(Image.open(image_path))
 
-def generate_response(user_prompt):
+def split_text_into_chunks(text, chunk_size=512):
+    return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+
+def create_vector_db(chunks):
+    embeddings = embedding_model.encode(chunks)
+    index = faiss.IndexFlatL2(embeddings.shape[1])
+    index.add(np.array(embeddings))
+    return {'index': index, 'chunks': chunks}
+
+def retrieve_relevant_chunks(query, vector_db):
+    query_embedding = embedding_model.encode([query])
+    D, I = vector_db['index'].search(np.array(query_embedding), k=5)  # Retrieve top 5 chunks
+    return [vector_db['chunks'][i] for i in I[0]]
+
+def generate_response(system_prompt, user_prompt):
     try:
-        # Define the system prompt
-        system_prompt = "You are a helpful assistant, your name is DocBot, you help with document text"
-        chatbot_symbol = "🤖" 
-        
-        # Concatenate the system and user prompts
-        prompt = f"{system_prompt}\n\nUser Query: {user_prompt}\n\nAnswer:"
-        
         # Call the Groq model with the combined prompt
         chat_completion = client.chat.completions.create(
             messages=[
@@ -74,11 +90,8 @@ def generate_response(user_prompt):
         # Get the chatbot's response
         chatbot_response = chat_completion.choices[0].message.content.strip()
         
-        # Add the chatbot symbol to the response
-        chatbot_response_with_symbol = f"{chatbot_symbol} {chatbot_response}"
-        
         # Return the response
-        return chatbot_response_with_symbol
+        return chatbot_response
     except Exception as e:
         st.error(f"An error occurred: {e}")
         return "There was an error processing your request."
@@ -94,7 +107,6 @@ if uploaded_file:
 
     if file_extension == ".pdf":
         st.write("Processing PDF...")
-        # Check if PDF contains text or images
         text_content = extract_text_from_pdf(file_path)
         if not text_content.strip():
             st.write("PDF contains images, using OCR...")
@@ -108,24 +120,23 @@ if uploaded_file:
     else:
         st.write("Processing Image...")
         text_content = extract_text_from_image(file_path)
-
     
     progress_bar.progress(100)  # Set progress to 100% if text extraction successful
 
+    # Split text into chunks and create a vector database
+    chunks = split_text_into_chunks(text_content)
+    vector_db = create_vector_db(chunks)
+
+# Check if document is loaded and ready for interaction
+if text_content and vector_db:
     st.subheader("Chat with your document")
     user_query = st.text_input("Ask a question about your document")
 
     if user_query:
-        prompt = f"Document Text: {text_content}\n\nUser Query: {user_query}\n\nAnswer:"
-        response = generate_response(prompt)
+        relevant_chunks = retrieve_relevant_chunks(user_query, vector_db)
+        context = "\n".join(relevant_chunks)
+        system_prompt = "You are a helpful assistant, your name is DocBot, you help with document text"
+        response = generate_response(system_prompt, f"Context: {context}\n\nUser Query: {user_query}")
         st.write("Response: ", response)
-
-# Clean up temp images
-def cleanup_temp_images(output_folder="temp_images"):
-    if os.path.exists(output_folder):
-        for file in os.listdir(output_folder):
-            file_path = os.path.join(output_folder, file)
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-
-cleanup_temp_images()
+else:
+    st.write("Upload a file to begin processing.")
