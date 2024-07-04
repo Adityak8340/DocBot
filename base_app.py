@@ -140,4 +140,3 @@ if text_content and vector_db:
         st.write("Response: ", response)
 else:
     st.write("Upload a file to begin processing.")
-xsw
