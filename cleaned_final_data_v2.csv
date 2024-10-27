@@ -3116,9 +3116,6 @@ ID,CVE-ID,CVSS-V3,CVSS-V2,SEVERITY,CWE-ID,Operating_System,Software_Component,Ve
 3115,CVE-2005-0136,,2.1,LOW,NVD-CWE-Other,Linux,Linux kernel,before 2.6.11,denial of service,Itanium IA64 platform,local,,,,,
 3116,CVE-2005-0137,,2.1,LOW,NVD-CWE-Other,Linux,Linux kernel,2.6,denial of service,Itanium (ia64) architectures,local,,,,,
 3117,CVE-2005-0138,,7.5,HIGH,CWE-17,,rpc.mountd,"6.5.25, 6.5.26, 6.5.27",,,,,,,,SGI
-3118,CVE-2005-0139,,7.5,HIGH,CWE-264,SGI IRIX,rpc.mountd,"6.5.25, 6.5.26, 6.5.27",unauthorized activities,,remote,,,,,SGI
-3119,CVE-2005-0140,,7.5,HIGH,NVD-CWE-Other,,PeID,,arbitrary code execution,,,,,,,
-3120,CVE-2005-0141,,2.6,LOW,NVD-CWE-Other,,"Firefox, Mozilla","before 1.0, before 1.7.5",load local files,,remote,,,,Yes,Mozilla
 3121,CVE-2005-0142,,2.1,LOW,NVD-CWE-Other,,"Firefox, Thunderbird, Mozilla","0.9, 0.6, 1.7",read certain web content or attachments belonging to other users,,local,,,,,Mozilla
 3122,CVE-2005-0143,,2.6,LOW,NVD-CWE-Other,,"Firefox, Mozilla","before 1.0, before 1.7.5",facilitate phishing attacks,,,,,,,Mozilla
 3123,CVE-2005-0144,,2.6,LOW,NVD-CWE-Other,,"Firefox, Mozilla","before 1.0, before 1.7.5",facilitate phishing attacks,,,SSL,,,,Mozilla
