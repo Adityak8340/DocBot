@@ -1,6 +1,6 @@
-ID,CVE-ID,CVSS-V3,CVSS-V2,SEVERITY,DESCRIPTION,CWE-ID
-1,CVE-1999-0001,,5.0,MEDIUM,ip_input.c in BSD-derived TCP/IP implementations allows remote attackers to cause a denial of service (crash or hang) via crafted packets.,CWE-20
-2,CVE-1999-0002,,10.0,HIGH,"Buffer overflow in NFS mountd gives root access to remote attackers, mostly in Linux systems.",CWE-119
-3,CVE-1999-0003,,10.0,HIGH,Execute commands as root via buffer overflow in Tooltalk database server (rpc.ttdbserverd).,NVD-CWE-Other
-4,CVE-1999-0004,,5.0,MEDIUM,"MIME buffer overflow in email clients, e.g. Solaris mailtool and Outlook.",NVD-CWE-Other
-5,CVE-1999-0005,,10.0,HIGH,Arbitrary command execution via IMAP buffer overflow in authenticate command.,NVD-CWE-Other
+ID,CVE-ID,CVSS-V2,SEVERITY,DESCRIPTION,CWE-ID
+1,CVE-1999-0001,5.0,MEDIUM,ip_input.c in BSD-derived TCP/IP implementations allows remote attackers to cause a denial of service (crash or hang) via crafted packets.,CWE-20
+2,CVE-1999-0002,10.0,HIGH,"Buffer overflow in NFS mountd gives root access to remote attackers, mostly in Linux systems.",CWE-119
+3,CVE-1999-0003,10.0,HIGH,Execute commands as root via buffer overflow in Tooltalk database server (rpc.ttdbserverd).,NVD-CWE-Other
+4,CVE-1999-0004,5.0,MEDIUM,"MIME buffer overflow in email clients, e.g. Solaris mailtool and Outlook.",NVD-CWE-Other
+5,CVE-1999-0005,10.0,HIGH,Arbitrary command execution via IMAP buffer overflow in authenticate command.,NVD-CWE-Other
